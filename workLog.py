@@ -145,7 +145,7 @@ def search_by_time():
 
 
 def search_by_date():
-    """Search by a date of task"""
+    """Search by a date of task(dd/mm/yyyy)"""
     try:
         view_entries(None, None, input('Search query: '), None)
     except ValueError:
