@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 
 class TestWorkLogMethods(unittest.TestCase):
-    workLog2.initialize()
 
     def test_view_entries(self):
         self.assertEqual(workLog2.view_entries(),
@@ -50,4 +49,5 @@ class TestWorkLogMethods(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    TestWorkLogMethods()
+    workLog2.initialize()
+    unittest.main()
