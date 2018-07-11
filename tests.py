@@ -47,6 +47,25 @@ class TestWorkLogMethods(unittest.TestCase):
                 workLog2.search_by_employee('jimmy')[0]) == print(
                 "Entry deleted!")
 
+    def test_menu_loop1(self):
+        with unittest.mock.patch('builtins.input', return_value='q'):
+            result = workLog2.menu_loop()
+            assert result == print("Enter 'q' to quit."
+                                   "\na) Add an entry.\n"
+                                   "v) View all previous entries.\n"
+                                   "s) Search for previous entries")
+    def test_menu_exeptions(self):
+        with unittest.mock.patch('builtins.input', side_effect=['a',
+                                                                'fsdfsd',
+                                                                'fsdfdsfsf',
+                                                                'fsdfdsffd',
+                                                                'fdsfdsfsf',
+                                                                'q']):
+
+            self.assertRaises(ValueError,workLog2.menu_loop())
+            
+
+
 
 if __name__ == '__main__':
     workLog2.initialize()
