@@ -27,13 +27,15 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def add_entry():
+def add_entry(name,
+              time,
+              task,
+              notes):
     """Add an entry."""
-    name = input('enter Employee name: ').strip()
-    time = int(input('time spent on task in minutes : ').strip())
-    task = input('enter task name: ').strip()
-    notes = input('if you have additional notes write now else type n').strip()
-
+    name.strip()
+    time = int(time.strip())
+    task.strip()
+    notes.strip()
     if name and time and task:
         if notes.lower() == 'n':
             if input('enter y to save entry: ').lower() == 'y':
@@ -52,23 +54,13 @@ def add_entry():
                 print("Saved successfully!")
 
 
-def view_entries(search_task=None,
-                 employee_find=None,
-                 date_find=None,
-                 time_find=None):
+def view_entries():
     """View all previous entries."""
-    entries = Task.select().order_by(Task.timestamp.desc())
-    if search_task:
-        entries = entries.where(Task.general_notes.contains(search_task) |
-                                Task.task_name.contains(search_task))
-    elif employee_find:
-        entries = entries.where(Task.employee_name == employee_find)
-    elif date_find:
-        entries = entries.where(Task.timestamp == datetime.datetime.strptime(
-            date_find, '%d/%m/%Y'))
-    elif time_find:
-        entries = entries.where(Task.time_worked == int(time_find))
+    return Task.select().order_by(Task.timestamp.desc())
 
+
+def view_entries_loop(entries):
+    '''View all previous entries.'''
     for entry in entries:
         timestamp = entry.timestamp.strftime('%d/%m/%Y')
         clear()
@@ -89,8 +81,6 @@ def view_entries(search_task=None,
         elif next_action == 'd':
             delete_entry(entry)
 
-
-
 def menu_loop():
     """Show the menu"""
     choice = None
@@ -103,8 +93,21 @@ def menu_loop():
         choice = input('Action: ').lower().strip()
 
         if choice in menu:
-            clear()
-            menu[choice]()
+            if choice.lower() == 'a':
+                clear()
+                try:
+                    menu[choice](input('name'),
+                                 input('time'),
+                                 input('task'),
+                                 input('notes'))
+                except ValueError:
+                    print('Please enter numbers for time ')
+            elif choice.lower() == 'v':
+                clear()
+                menu[choice](view_entries())
+            elif choice.lower() == 's':
+                clear()
+                menu[choice]()
 
 
 def delete_entry(entry):
@@ -126,34 +129,54 @@ def look_up_preivous_entries():
         choice = input('Action: ').lower().strip()
 
         if choice in search_menu:
-            clear()
-            search_menu[choice]()
+            if choice == 'e':
+                clear()
+                view_entries_loop(search_menu[choice]
+                                  (input('enter employee name :')))
+            elif choice == 't':
+                clear()
+                try:
+                    view_entries_loop(search_menu[choice]
+                                      (input('enter time spent (minutes) :')))
+                except ValueError:
+                    print('please enter numbers only ')
+
+            elif choice == 'd':
+                clear()
+                try:
+                    view_entries_loop(search_menu[choice]
+                                      (input('enter date of '
+                                             'task (dd/mm/yyyy) :')))
+                except ValueError:
+                    print('please enter dd/mm/yyyy format')
+
+            elif choice == 'n':
+                clear()
+                view_entries_loop(search_menu[choice]
+                                  (input('enter word within task name or '
+                                         'notes :')))
 
 
-def search_by_employee():
+def search_by_employee(employee_find):
     """Search by employee."""
-    view_entries(None, input('Search query: '), None, None)
+    return view_entries().where(Task.employee_name == employee_find)
 
 
-def search_by_time():
+def search_by_time(time_find):
     """Search by time spent on task (minutes)."""
-    try:
-        view_entries(None, None, None, input('Search query: '))
-    except ValueError:
-        print('please enter numbers only')
+    return view_entries().where(Task.time_worked == int(time_find))
 
 
-
-def search_by_date():
+def search_by_date(date_find):
     """Search by a date of task(dd/mm/yyyy)"""
-    try:
-        view_entries(None, None, input('Search query: '), None)
-    except ValueError:
-        print('Please enter a date in dd/mm/yyyy format')
+    return view_entries().where(Task.timestamp == datetime.datetime.strptime(
+        date_find, '%d/%m/%Y'))
 
-def search_by_task_or_notes():
+
+def search_by_task_or_notes(search_task):
     """Search by task name or notes."""
-    view_entries(input('Search query: '), None, None, None)
+    return view_entries().where(Task.general_notes.contains(search_task) |
+                                Task.task_name.contains(search_task))
 
 
 search_menu = OrderedDict([
@@ -165,10 +188,9 @@ search_menu = OrderedDict([
 
 menu = OrderedDict([
     ('a', add_entry),
-    ('v', view_entries),
+    ('v', view_entries_loop),
     ('s', look_up_preivous_entries),
 ])
-
 
 if __name__ == '__main__':
     initialize()
