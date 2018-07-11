@@ -96,10 +96,10 @@ def menu_loop():
             if choice.lower() == 'a':
                 clear()
                 try:
-                    menu[choice](input('name'),
-                                 input('time'),
-                                 input('task'),
-                                 input('notes'))
+                    menu[choice](input('name: '),
+                                 input('time: '),
+                                 input('task: '),
+                                 input('notes: '))
                 except ValueError:
                     print('Please enter numbers for time ')
             elif choice.lower() == 'v':

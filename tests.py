@@ -34,6 +34,8 @@ class TestWorkLogMethods(unittest.TestCase):
     def test_search_by_task_or_notes(self):
         self.assertIn('yes',
                       workLog2.search_by_task_or_notes('yes')[0].general_notes)
+        self.assertIn('py',
+                      workLog2.search_by_task_or_notes('py')[0].task_name)
 
     def test_add_entry(self):
         with unittest.mock.patch('builtins.input', return_value='y'):
